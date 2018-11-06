@@ -1,4 +1,13 @@
 
+form的enctype属性为编码方式，
+
+常用有两种：application/x-www-form-urlencoded 和 multipart/form-data，
+
+默认为application/x-www-form-urlencoded。
+
+参考：[关于Content-Type中application/x-www-form-urlencoded 和 multipart/form-data的区别及用法](https://www.cnblogs.com/kaibin/p/6635134.html)
+
+
 
 # 重要的关系
 ### 创建被观察者Observable

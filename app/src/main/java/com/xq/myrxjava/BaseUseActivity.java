@@ -11,6 +11,7 @@ import android.view.View;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.xq.myrxjava.adapter.MyAdapter;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +47,7 @@ public class BaseUseActivity extends AppCompatActivity {
         ArrayList<String> list = new ArrayList<>();
         list.add("demo1");
         list.add("demo2");
-        list.add("zip");
+        list.add("zip：组装Observable结果，可能不完整");
         list.add("filter");
         list.add("sample");
         list.add("take repeat distinct");
@@ -55,6 +56,7 @@ public class BaseUseActivity extends AppCompatActivity {
         list.add("delay");
         list.add("doOn系列");
         list.add("concat");
+        list.add("Merge:合并Observable：有序，完全");
         MyAdapter myAdapter = new MyAdapter(R.layout.activity_item, list);
         recyclerview.setAdapter(myAdapter);
         recyclerview.setLayoutManager(new LinearLayoutManager(this));
@@ -85,11 +87,72 @@ public class BaseUseActivity extends AppCompatActivity {
                     demo10();
                 } else if (position == 10) {
                     demo11();
+                } else if (position == 11) {
+                    demo12();
                 }
             }
 
         });
 
+    }
+
+
+    private void demo12() {
+        Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
+                e.onNext(1);
+                e.onNext(2);
+                e.onNext(3);
+                e.onNext(4);
+            }
+        });
+
+        Observable<String> observable1 = Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(ObservableEmitter<String> e) throws Exception {
+                e.onNext("一");
+                e.onNext("二");
+                e.onNext("三");
+            }
+        });
+
+        Observable<String> observable2 = Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(ObservableEmitter<String> e) throws Exception {
+                e.onNext("①");
+                e.onNext("②");
+                e.onNext("③");
+                e.onNext("④");
+                e.onNext("⑤");
+                e.onNext("⑥");
+            }
+        });
+
+
+        Observable<? extends Serializable> mergeObservable = Observable.merge(observable, observable1, observable2);
+
+        mergeObservable.subscribe(new Observer<Serializable>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(Serializable serializable) {
+                System.out.println("serializable===================="+serializable);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
     private void demo11() {
@@ -311,23 +374,24 @@ public class BaseUseActivity extends AppCompatActivity {
         Observable<String> observable1 = Observable.create(new ObservableOnSubscribe<String>() {
             @Override
             public void subscribe(ObservableEmitter<String> e) throws Exception {
-                e.onNext("这是");
-                e.onNext("这个是");
-                e.onNext("这个则是");
+                e.onNext("一");
+                e.onNext("二");
+                e.onNext("三");
             }
         });
 
         Observable<String> observable2 = Observable.create(new ObservableOnSubscribe<String>() {
             @Override
             public void subscribe(ObservableEmitter<String> e) throws Exception {
-                e.onNext("个");
-                e.onNext("只");
-                e.onNext("条");
-                e.onNext("张");
-                e.onNext("本");
-                e.onNext("副");
+                e.onNext("①");
+                e.onNext("②");
+                e.onNext("③");
+                e.onNext("④");
+                e.onNext("⑤");
+                e.onNext("⑥");
             }
         });
+
 
         //RxJava中的zip操作符作用是将多条上游发送的事件进行结合到一起,发送到下游,并且按照顺序来进行结合,
         //如多条上游中发送的事件数量不一致,则以最少的那条中的事件为准,下游接收到的事件数量和其相等.
