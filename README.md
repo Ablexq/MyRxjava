@@ -10,31 +10,81 @@ form的enctype属性为编码方式，
 
 
 # 重要的关系
-### 创建被观察者Observable
+### 创建被观察者Observable、Flowable
 
 
+
+> 创建数据
+
+    public static <T> Observable<T> create(ObservableOnSubscribe<T> source) {
+
+    public static <T> Observable<T> just(T item) {
+
+
+> 转换type
+
+    public final <R> Observable<R> map(Function<? super T, ? extends R> mapper) {
+
+    public final <R> Observable<R> flatMap(Function<? super T,
+					? extends ObservableSource<? extends R>> mapper) {
+
+    public final <R> Observable<R> concatMap(Function<? super T,
+					? extends ObservableSource<? extends R>> mapper) {
+
+    public final <R> Observable<R> switchMap(Function<? super T,
+					? extends ObservableSource<? extends R>> mapper) {
+
+
+> 线程切换
+
+    public final Observable<T> subscribeOn(Scheduler scheduler) {
+
+    public final Observable<T> observeOn(Scheduler scheduler) {
+
+示例：
+
+	//subscribeOn() 指定的是上游发送事件的线程,
+	//observeOn() 指定的是下游接收事件的线程.
+	//多次指定上游的线程只有第一次指定的有效, 也就是说多次调用subscribeOn() 只有第一次的有效, 其余的会被忽略.
+	//多次指定下游的线程是可以的, 也就是说每调用一次observeOn() , 下游的线程就会切换一次.
+	.subscribeOn(Schedulers.newThread())//第一次有效
+	.subscribeOn(Schedulers.io())
+	.observeOn(AndroidSchedulers.mainThread())//每次都有效
 
 ### 创建观察者Consumer、Observer
 
+Consumer源码：
 
+	public interface Consumer<T> {
+	    void accept(T t) throws Exception;
+	}
+
+Observer源码：
+
+	public interface Observer<T> {
+	    void onSubscribe(@NonNull Disposable d);
+	    void onNext(@NonNull T t);
+	    void onError(@NonNull Throwable e);
+	    void onComplete();
+	}
 
 ### 建立关系
 
-subscribe的构造方法
-```
-public final Disposable subscribe() {}
-public final Disposable subscribe(Consumer<? super T> onNext) {}
-public final Disposable subscribe(Consumer<? super T> onNext,
-								  Consumer<? super Throwable> onError) {}
-public final Disposable subscribe(Consumer<? super T> onNext,
-								  Consumer<? super Throwable> onError,
-								  Action onComplete) {}
-public final Disposable subscribe(Consumer<? super T> onNext,
-								  Consumer<? super Throwable> onError,
-								  Action onComplete,
-								  Consumer<? super Disposable> onSubscribe) {}
-public final void subscribe(Observer<? super T> observer) {}
-```
+Observable类中subscribe方法
+
+	public final Disposable subscribe() {}
+	public final Disposable subscribe(Consumer<? super T> onNext) {}
+	public final Disposable subscribe(Consumer<? super T> onNext,
+									  Consumer<? super Throwable> onError) {}
+	public final Disposable subscribe(Consumer<? super T> onNext,
+									  Consumer<? super Throwable> onError,
+									  Action onComplete) {}
+	public final Disposable subscribe(Consumer<? super T> onNext,
+									  Consumer<? super Throwable> onError,
+									  Action onComplete,
+									  Consumer<? super Disposable> onSubscribe) {}
+	public final void subscribe(Observer<? super T> observer) {}
+
 
 
 # 线程调度
@@ -103,22 +153,52 @@ public interface Subscription {
 }
 ```
 
-### Observable 与 Disposable：
-```
-public interface Disposable {
-    void dispose();//切断水流
-    boolean isDisposed();//是否切断水流
-}
-```
+### Observable的subscribe方法 与 Disposable类：
+
+	public final Disposable subscribe() {}
+	public final Disposable subscribe(Consumer<? super T> onNext) {}
+	public final Disposable subscribe(Consumer<? super T> onNext,
+									  Consumer<? super Throwable> onError) {}
+	public final Disposable subscribe(Consumer<? super T> onNext,
+									  Consumer<? super Throwable> onError,
+									  Action onComplete) {}
+	public final Disposable subscribe(Consumer<? super T> onNext,
+									  Consumer<? super Throwable> onError,
+									  Action onComplete,
+									  Consumer<? super Disposable> onSubscribe) {}
+	public final void subscribe(Observer<? super T> observer) {}
+
+	//Disposable类
+	public interface Disposable {
+	    void dispose();//切断水流
+	    boolean isDisposed();//是否切断水流
+	}
 
 
 
 
 
+### Function、BiFunction、Function3....Function9的区别：
+	public interface Function<T, R> {
+	    R apply(@NonNull T t) throws Exception;
+	}
 
+	public interface BiFunction<T1, T2, R> {
+	    R apply(@NonNull T1 t1, @NonNull T2 t2) throws Exception;
+	}
 
+	public interface Function3<T1, T2, T3, R> {
+	    R apply(@NonNull T1 t1, @NonNull T2 t2, @NonNull T3 t3) throws Exception;
+	}
 
+	//...
 
+	public interface Function9<T1, T2, T3, T4, T5, T6, T7, T8, T9, R> {
+	    R apply(@NonNull T1 t1, @NonNull T2 t2, @NonNull T3 t3,
+				@NonNull T4 t4, @NonNull T5 t5, @NonNull T6 t6,
+				@NonNull T7 t7, @NonNull T8 t8, @NonNull T9 t9) throws Exception;
+	}
 
+分别为传参123...9，有返回值的函数。
 
 
