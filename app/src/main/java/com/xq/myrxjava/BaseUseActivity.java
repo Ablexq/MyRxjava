@@ -140,7 +140,7 @@ public class BaseUseActivity extends AppCompatActivity {
 
             @Override
             public void onNext(Serializable serializable) {
-                System.out.println("serializable===================="+serializable);
+                System.out.println("serializable====================" + serializable);
             }
 
             @Override
@@ -155,26 +155,41 @@ public class BaseUseActivity extends AppCompatActivity {
         });
     }
 
+    /*============================================ concat ==================================================*/
+
     private void demo11() {
-        Observable.concat(Observable.just(1, 2, 3), Observable.just(4, 5, 6))
+        Observable<Integer> just1 = Observable.just(1, 2, 3);
+        Observable<Integer> just2 = Observable.just(4, 5, 6);
+        Observable.concat(just1, just2)
                 .subscribe(new Consumer<Integer>() {
                     @Override
                     public void accept(@NonNull Integer integer) throws Exception {
+                        //按顺序 123  -->  456
+                        //可用于先取缓存再取网络数据
                         Log.e(TAG, "concat : " + integer + "\n");
                     }
                 });
     }
 
+    /*============================================ interval ==================================================*/
+    //间隔一段时间就发送一个数据
     private void demo7() {
-        Observable.interval(1, TimeUnit.SECONDS)//间隔执行
+        Disposable disposable = Observable.interval(1, TimeUnit.SECONDS)//心跳，间隔执行
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long aLong) throws Exception {
                         System.out.println("interval============" + aLong);
                     }
                 });
+
+//        需要在界面ondestroy时取消
+//        if (disposable != null) {
+//            disposable.dispose();
+//        }
     }
 
+    /*============================================ timer ==================================================*/
+    //在订阅之后，它会在等待一段时间之后发射一个0数据项，然后结束，因此它常常可以用来延时地发送时间
     private void demo8() {
         Observable.timer(10, TimeUnit.SECONDS)//延时执行
                 .subscribe(new Consumer<Long>() {
@@ -185,6 +200,8 @@ public class BaseUseActivity extends AppCompatActivity {
                 });
     }
 
+    /*============================================ delay ==================================================*/
+    //用来延迟上游发射过来的数据
     private void demo9() {
         Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
@@ -360,6 +377,7 @@ public class BaseUseActivity extends AppCompatActivity {
                 }).subscribe(consumer);
     }
 
+    /*============================================ zip ==================================================*/
     private void demo3() {
         Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
@@ -407,6 +425,8 @@ public class BaseUseActivity extends AppCompatActivity {
             }
         });
     }
+
+    /*==============================================================================================*/
 
     private void demo1() {
         //创建一个上游 被观察者 Observable：
@@ -465,6 +485,8 @@ public class BaseUseActivity extends AppCompatActivity {
         //建立连接关系
         observable.subscribe(observer);
     }
+
+    /*=============================================================================================*/
 
     private void demo2() {
         Observable.create(new ObservableOnSubscribe<Integer>() {
