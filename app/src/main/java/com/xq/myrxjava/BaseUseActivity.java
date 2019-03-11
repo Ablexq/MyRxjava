@@ -258,7 +258,7 @@ public class BaseUseActivity extends AppCompatActivity {
                     }
                 })
                 //订阅之后回调的方法
-                .doOnSubscribe(new Consumer<Disposable>() {
+                .doOnSubscribe(new Consumer<Disposable>() { //用于显示加载进度框
                     @Override
                     public void accept(@NonNull Disposable disposable) throws Exception {
                         Log.e(TAG, "doOnSubscribe: ");
